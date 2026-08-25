@@ -27,7 +27,7 @@ export default function Page() {
     <>
       <Topbar></Topbar>
       <div className="flex items-center justify-center">
-        <div className="flex flex-col px-3 justify-center items-center w-200 bg-navy-bg-lighter">
+        <div className="flex flex-col px-3 justify-center items-center w-auto bg-background-primary">
           <input type="text"
 
             placeholder="Search beatmap..."

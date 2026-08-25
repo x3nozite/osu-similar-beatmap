@@ -9,3 +9,5 @@ class Beatmaps(SQLModel, table=True):
     title: str = Field(default=None)
     star_rating: float = Field(default=None)
     version: str = Field(default=None)
+    artist: str
+    mapper: str

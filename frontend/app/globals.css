@@ -8,10 +8,11 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  /* --font-sans: var(--font-geist-sans); */
   --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-montserrat);
 
-  --color-navy-bg-lighter: #1C2237;
+  --color-background-primary: #1C2237;
   --color-topbar-bg: #1E1C29;
   --color-osu-pink: #f160a2;
   --color-osu-pink-darker: #fc8bbf;
@@ -27,5 +28,5 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  /* font-family: Arial, Helvetica, sans-serif; */
 }

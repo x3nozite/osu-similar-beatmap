@@ -4,5 +4,7 @@ export type Beatmaps = {
   beatmapset_id: number,
   title: string,
   star_rating: number,
-  version: string
+  version: string,
+  artist: string,
+  mapper: string
 }
