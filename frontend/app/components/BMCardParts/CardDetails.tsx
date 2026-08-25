@@ -6,8 +6,8 @@ interface Props {
 
 export default function CardDetails({ beatmap }: Props) {
   return (
-    <div className="flex flex-col gap-2 w-full">
-      <h1 className="whitespace-nowrap overflow-hidden text-ellipsis max-w-150 block box-border text-3xl font-bold" title={beatmap.title}>
+    <div className="flex flex-col gap-2 w-full min-w-0">
+      <h1 className="whitespace-nowrap overflow-hidden text-ellipsis w-150 md:w-75 lg:w-150 block box-border text-3xl font-bold" title={beatmap.title}>
         {beatmap.title}
       </h1>
       <div className="flex flex-col gap-1">

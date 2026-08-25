@@ -6,7 +6,7 @@ from fastapi.responses import HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import session
 from sqlalchemy import func
-from sqlmodel import Session, create_engine, select
+from sqlmodel import Session, create_engine, select, or_
 
 from beatmaps.models import Beatmaps
 
@@ -60,7 +60,16 @@ def search_beatmapset(q: str, session: SessionDep,) -> list[Beatmaps]:
         return list(beatmaps)
 
     tokens = q.split()
-    conditions = [Beatmaps.title.ilike(f"%{t}%") for t in tokens]
+    conditions = []
+    for t in tokens:
+        conditions.append(
+            or_(
+                Beatmaps.title.ilike(f"%{t}%"),
+                Beatmaps.artist.ilike(f"%{t}%"),
+                Beatmaps.mapper.ilike(f"%{t}%"),
+                Beatmaps.version.ilike(f"%{t}%"),
+            )
+        )
 
     beatmaps = session.exec(
         select(Beatmaps).where(*conditions).limit(20)).all()
