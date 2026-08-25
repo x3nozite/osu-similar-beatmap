@@ -10,11 +10,16 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+
+  --color-navy-bg-lighter: #1C2237;
+  --color-topbar-bg: #1E1C29;
+  --color-osu-pink: #f160a2;
+  --color-osu-pink-darker: #fc8bbf;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
+    --background: #1A202C;
     --foreground: #ededed;
   }
 }

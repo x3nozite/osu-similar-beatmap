@@ -51,6 +51,12 @@ async def test():
 
 @app.get("/api/search")
 def search_beatmapset(q: str, session: SessionDep,) -> list[Beatmaps]:
+    if q == '':
+        beatmaps = session.exec(
+            select(Beatmaps).order_by(Beatmaps.beatmap_id.desc()).limit(50)
+        )
+        return list(beatmaps)
+
     tokens = q.split()
     conditions = [Beatmaps.title.ilike(f"%{t}%") for t in tokens]
 
