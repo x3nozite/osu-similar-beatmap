@@ -16,7 +16,7 @@ export default function CardDetails({ beatmap }: Props) {
       </div>
       <div className="text-sm">
         <p>
-          Mapped by {beatmap.mapper} | Star Rating: {beatmap.star_rating}*
+          Mapped by <span className="font-bold">{beatmap.mapper}</span> | Star Rating: {beatmap.star_rating.toFixed(2)}*
         </p>
       </div>
     </div>

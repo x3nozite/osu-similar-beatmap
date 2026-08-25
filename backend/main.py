@@ -1,9 +1,11 @@
 from operator import and_
 from typing import Annotated
 
-from fastapi import Depends, FastAPI
+from fastapi import Depends, FastAPI, HTTPException
 from fastapi.responses import HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy.orm import session
+from sqlalchemy import func
 from sqlmodel import Session, create_engine, select
 
 from beatmaps.models import Beatmaps
@@ -63,6 +65,16 @@ def search_beatmapset(q: str, session: SessionDep,) -> list[Beatmaps]:
     beatmaps = session.exec(
         select(Beatmaps).where(*conditions).limit(20)).all()
     return list(beatmaps)
+
+
+@app.get("/api/beatmap/random")
+def random_beatmap(session: SessionDep) -> Beatmaps:
+    beatmap = session.exec(
+        select(Beatmaps).order_by(func.random())
+    ).first()
+    if beatmap is None:
+        raise HTTPException(status_code=404, detail="No beatmaps found")
+    return beatmap
 
 
 @app.get("/api/search/beatmapsets/{beatmapset_id}")
