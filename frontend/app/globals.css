@@ -12,7 +12,8 @@
   --font-mono: var(--font-geist-mono);
   --font-sans: var(--font-montserrat);
 
-  --color-background-primary: #1C2237;
+  --color-background-primary: #1A202C;
+  --color-background-secondary: #1C2237;
   --color-topbar-bg: #1E1C29;
   --color-osu-pink: #f160a2;
   --color-osu-pink-darker: #fc8bbf;

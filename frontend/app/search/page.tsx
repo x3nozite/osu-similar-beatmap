@@ -3,6 +3,7 @@ import Topbar from "../components/Topbar";
 import { Beatmaps } from "../types";
 import BeatmapCard from "../components/BeatmapCard";
 import { SlidersHorizontal } from "lucide-react";
+import InputBox from "../components/InputBox";
 import { useEffect, useState } from "react";
 
 
@@ -34,14 +35,11 @@ export default function Page() {
     <>
       <Topbar></Topbar>
       <div className="flex items-center justify-center">
-        <div className="flex flex-col px-8 py-4 justify-center items-center w-auto bg-background-primary gap-8">
+        <div className="flex flex-col px-8 py-4 justify-center items-center w-auto bg-background-secondary gap-8">
           <div className="w-full flex flex-row gap-4 items-center">
-            <input type="text"
-
-              placeholder="Search beatmap..."
-              value={query}
-              onChange={handleChange}
-              className="w-full px-4 py-3.5 text-base border border-[rgb(58,71,112)] bg-[rgb(38,44,66)] text-white rounded-xl transition-all duration-200"
+            <InputBox
+              query={query}
+              handleChange={handleChange}
             />
             <button onClick={toggleFilter}>
               <SlidersHorizontal />
