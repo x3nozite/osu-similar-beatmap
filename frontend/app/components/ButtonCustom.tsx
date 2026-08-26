@@ -13,13 +13,15 @@ const sizes = {
 interface Props {
   variant?: keyof typeof variants,
   size?: keyof typeof sizes,
-  className?: string
+  className?: string,
+  text: string
+  onClick: () => void
 }
 
-export default function ButtonCustom({ variant = "primary", size = "md", className = "" }: Props) {
+export default function ButtonCustom({ variant = "primary", size = "md", className = "", text = "", onClick }: Props) {
   return (
-    <button className={`text-base rounded-md   transition duration-200 ${variants[variant]} ${sizes[size]} ${className}`}>
-      Login with osu!
+    <button className={`text-base rounded-md   transition duration-200 ${variants[variant]} ${sizes[size]} ${className}`} onClick={onClick}>
+      {text}
     </button>
   );
 }

@@ -4,13 +4,17 @@ import { Beatmaps } from "../types";
 import BeatmapCard from "../components/BeatmapCard";
 import { SlidersHorizontal } from "lucide-react";
 import InputBox from "../components/InputBox";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
-
 export default function Page() {
-  const [query, setQuery] = useState('')
   const [results, setResults] = useState<Beatmaps[]>([])
   const [showFilters, setShowFilters] = useState(false)
+  const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+  const query = searchParams.get('q') || ''
+  const [currentQuery, setCurrentQuery] = useState(query)
 
   useEffect(() => {
     const timeout = setTimeout(async () => {
@@ -18,13 +22,27 @@ export default function Page() {
       const data = await res.json()
       setResults(data)
       console.log(results)
-    }, 400)
+    }, 100)
 
     return () => clearTimeout(timeout)
   }, [query])
 
-  const handleChange = (e) => {
-    setQuery(e.target.value)
+  useEffect(() => {
+    const timeout = setTimeout(async () => {
+      const newQuery = currentQuery
+      const params = new URLSearchParams(searchParams)
+
+      if (newQuery) params.set('q', newQuery)
+      else params.delete('q')
+
+      router.push(`${pathname}?${params.toString()}`)
+    }, 400)
+
+    return () => clearTimeout(timeout)
+  }, [currentQuery])
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setCurrentQuery(e.target.value)
   }
 
   const toggleFilter = () => {
@@ -38,7 +56,7 @@ export default function Page() {
         <div className="flex flex-col px-8 py-4 justify-center items-center w-auto bg-background-secondary gap-8">
           <div className="w-full flex flex-row gap-4 items-center">
             <InputBox
-              query={query}
+              query={currentQuery}
               handleChange={handleChange}
             />
             <button onClick={toggleFilter}>
