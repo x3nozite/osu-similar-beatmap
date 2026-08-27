@@ -11,6 +11,7 @@ export default function Cover({ id }: Props) {
         src={`https://assets.ppy.sh/beatmaps/${id}/covers/card@2x.jpg`}
         alt=""
         fill
+        sizes="(max-width: 768px) 100vw, 300px"
         className="object-cover"
       />
 

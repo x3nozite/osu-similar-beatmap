@@ -1,14 +1,17 @@
-from operator import and_
+from datetime import timedelta, datetime
 from typing import Annotated
 
 from fastapi import Depends, FastAPI, HTTPException
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy.orm import session
 from sqlalchemy import func
 from sqlmodel import Session, create_engine, select, or_
-
+from urllib.parse import urlencode
 from beatmaps.models import Beatmaps
+from users.models import Users
+import os
+from dotenv import load_dotenv
+import requests
 
 app = FastAPI()
 
@@ -30,6 +33,9 @@ def get_session():
 
 
 SessionDep = Annotated[Session, Depends(get_session)]
+
+load_dotenv()
+osu_secret = os.getenv("OSU_CLIENT_SECRET")
 
 
 @app.get("/")
@@ -89,3 +95,80 @@ def random_beatmap(session: SessionDep) -> Beatmaps:
 @app.get("/api/search/beatmapsets/{beatmapset_id}")
 async def read_beatmapset(beatmapset_id):
     return {"id": beatmapset_id}
+
+
+@app.post("/api/login")
+def osu_login():
+    base_url = "https://osu.ppy.sh/oauth/authorize"
+    params = {
+        'client_id': '66324',
+        'redirect_uri': 'http://localhost:8000/api/login/callback',
+        'response_type': 'code',
+        'scope': 'public identity',
+        "state": "randomval",
+    }
+
+    url = f"{base_url}?{urlencode(params)}"
+    return RedirectResponse(url)
+
+
+@app.post("api/login/callback")
+async def callback(code: str, session: SessionDep):
+    if not code:
+        raise HTTPException(
+            status_code=400, detail="Missing authorization code")
+
+    token_url = "https://osu.ppy.sh/oauth/token"
+    headers = {
+        "Accept": "application/json",
+        "Content-Type": "application/x-www-form-urlencoded",
+    }
+    body = {
+        'client_id': '66324',
+        'client_secret': osu_secret,
+        'code': code,
+        'grant_type': 'authorization_code',
+        'redirect_uri': 'http://localhost:8000/api/login/callback'
+    }
+
+    response = requests.post(token_url, headers=headers, data=body)
+    token_data = response.json()
+
+    if response.status_code != 200:
+        return {"message": "Failed to get token data"}
+
+    access_token = token_data["access_token"]
+    refresh_token = token_data["refresh_token"]
+    expires_in = token_data["expires_in"]
+
+    user_url = "https://osu.ppy.sh/api/v2/me"
+    user_headers = {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+        "Authorization": f"Bearer {access_token}"
+    }
+    user_info_response = requests.get(user_url, headers=user_headers)
+    user_info = user_info_response.json()
+
+    user = session.exec(
+        select(Users).where(Users.user_id == user_info["id"])
+    ).first()
+
+    if user is not None:
+        user.access_token = access_token
+        user.refresh_token = refresh_token
+        user.token_expires_at = datetime.now() + timedelta(seconds=expires_in)
+        session.add(user)
+        session.commit()
+    else:
+        user = Users(
+            username=user_info["username"],
+            user_id=user_info["id"],
+            access_token=access_token,
+            refresh_token=refresh_token,
+            token_expires_at=datetime.now() + timedelta(seconds=expires_in)
+        )
+        session.add(user)
+        session.commit()
+
+    # setup jwt
