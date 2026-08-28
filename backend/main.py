@@ -7,7 +7,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import func
 from sqlmodel import Session, create_engine, select, or_
 from urllib.parse import urlencode
+from auth import jwt_auth
 from beatmaps.models import Beatmaps
+from database import SessionDep
 from users.models import Users
 import os
 from dotenv import load_dotenv
@@ -21,18 +23,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"]
 )
-
-postgres_name = "beatmap_similarity"
-postgres_url = f"postgresql://postgres:@localhost:5432/{postgres_name}"
-engine = create_engine(postgres_url)
-
-
-def get_session():
-    with Session(engine) as session:
-        yield session
-
-
-SessionDep = Annotated[Session, Depends(get_session)]
 
 load_dotenv()
 osu_secret = os.getenv("OSU_CLIENT_SECRET")
@@ -58,7 +48,7 @@ async def test():
 
 
 @app.get("/api/search")
-def search_beatmapset(q: str, session: SessionDep,) -> list[Beatmaps]:
+def search_beatmapset(q: str, session: SessionDep) -> list[Beatmaps]:
     if q == '':
         beatmaps = session.exec(
             select(Beatmaps).order_by(Beatmaps.beatmap_id.desc()).limit(50)
@@ -112,7 +102,7 @@ def osu_login():
     return RedirectResponse(url)
 
 
-@app.post("api/login/callback")
+@app.get("api/login/callback")
 async def callback(code: str, session: SessionDep):
     if not code:
         raise HTTPException(
@@ -154,21 +144,52 @@ async def callback(code: str, session: SessionDep):
         select(Users).where(Users.user_id == user_info["id"])
     ).first()
 
+    app_access_token = jwt_auth.create_access_token({
+        "osu_user_id": user_info["id"],
+        "username": user_info["username"]
+    })
+    app_refresh_token = jwt_auth.create_refresh_token()
+
     if user is not None:
-        user.access_token = access_token
-        user.refresh_token = refresh_token
-        user.token_expires_at = datetime.now() + timedelta(seconds=expires_in)
+        user.osu_access_token = access_token
+        user.osu_refresh_token = refresh_token
+        user.osu_token_expires_at = datetime.now() + timedelta(seconds=expires_in)
+        user.app_refresh_token = app_refresh_token
+        user.app_token_expires_at = datetime.now() + timedelta(days=365)
         session.add(user)
         session.commit()
     else:
         user = Users(
             username=user_info["username"],
             user_id=user_info["id"],
-            access_token=access_token,
-            refresh_token=refresh_token,
-            token_expires_at=datetime.now() + timedelta(seconds=expires_in)
+            osu_access_token=access_token,
+            osu_refresh_token=refresh_token,
+            osu_token_expires_at=datetime.now() + timedelta(seconds=expires_in),
+            app_refresh_token=app_refresh_token,
+            app_token_expires_at=datetime.now() + timedelta(days=365)
         )
         session.add(user)
         session.commit()
 
-    # setup jwt
+    # TODO: change with actual deployment url later
+    response = RedirectResponse(url="http://localhost:3000/")
+
+    response.set_cookie(
+        key="access_token",
+        value=app_access_token,
+        httponly=True,
+        secure=False,  # TODO: change to True for production/HTTPS
+        samesite="lax",
+        max_age=jwt_auth.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
+    )
+
+    response.set_cookie(
+        key="refresh_token",
+        value=app_refresh_token,
+        httponly=True,
+        secure=False,
+        samesite="lax",
+        max_age=365 * 24 * 60 * 60
+    )
+
+    return response

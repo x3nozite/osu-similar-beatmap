@@ -25,7 +25,7 @@ export default function Page() {
     getRandomBeatmap()
   }, [])
 
-  const handleChange = (e) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setQuery(e.target.value)
   }
 
@@ -47,6 +47,7 @@ export default function Page() {
                 <InputBox
                   query={query}
                   handleChange={handleChange}
+                  onEnter={search}
                 />
                 <ButtonCustom text="Search" onClick={search} />
               </div>

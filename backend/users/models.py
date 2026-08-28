@@ -7,6 +7,8 @@ from sqlmodel import BigInteger, Field, Session, SQLModel, create_engine, select
 class Users(SQLModel, table=True):
     user_id: int = Field(default=None, primary_key=True)
     username: str
-    access_token: str
-    refresh_token: str
-    token_expires_at: datetime.datetime
+    osu_access_token: str
+    osu_refresh_token: str
+    osu_token_expires_at: datetime.datetime
+    app_refresh_token: str
+    app_token_expires_at: datetime.datetime
