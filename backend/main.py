@@ -21,7 +21,8 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:3000"],
     allow_methods=["*"],
-    allow_headers=["*"]
+    allow_headers=["*"],
+    allow_credentials=True,
 )
 
 load_dotenv()
@@ -87,14 +88,14 @@ async def read_beatmapset(beatmapset_id):
     return {"id": beatmapset_id}
 
 
-@app.post("/api/login")
+@app.get("/api/login")
 def osu_login():
     base_url = "https://osu.ppy.sh/oauth/authorize"
     params = {
         'client_id': '66324',
         'redirect_uri': 'http://localhost:8000/api/login/callback',
         'response_type': 'code',
-        'scope': 'public identity',
+        'scope': 'public identify',
         "state": "randomval",
     }
 
@@ -102,7 +103,7 @@ def osu_login():
     return RedirectResponse(url)
 
 
-@app.get("api/login/callback")
+@app.get("/api/login/callback")
 async def callback(code: str, session: SessionDep):
     if not code:
         raise HTTPException(
@@ -123,6 +124,7 @@ async def callback(code: str, session: SessionDep):
 
     response = requests.post(token_url, headers=headers, data=body)
     token_data = response.json()
+    print("test")
 
     if response.status_code != 200:
         return {"message": "Failed to get token data"}
@@ -193,3 +195,11 @@ async def callback(code: str, session: SessionDep):
     )
 
     return response
+
+
+@app.get("/api/me")
+def me(user: Users = Depends(jwt_auth.get_current_user)):
+    return {
+        "username": user.username,
+        "osu_id": user.user_id
+    }

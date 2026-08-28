@@ -35,7 +35,6 @@ export default function Page() {
 
   return (
     <div>
-      <Topbar />
       <div className="relative w-full h-240">
         {background && (
           <>

@@ -1,5 +1,4 @@
 "use client"
-import Topbar from "../components/Topbar";
 import { Beatmaps } from "../types";
 import BeatmapCard from "../components/BeatmapCard";
 import { SlidersHorizontal } from "lucide-react";
@@ -8,6 +7,7 @@ import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export default function Page() {
+  const api_url = process.env.NEXT_PUBLIC_API_URL
   const [results, setResults] = useState<Beatmaps[]>([])
   const [showFilters, setShowFilters] = useState(false)
   const router = useRouter()
@@ -18,7 +18,7 @@ export default function Page() {
 
   useEffect(() => {
     const timeout = setTimeout(async () => {
-      const res = await fetch(`http://127.0.0.1:8000/api/search?q=${query}`)
+      const res = await fetch(`${api_url}/api/search?q=${query}`)
       const data = await res.json()
       setResults(data)
       console.log(results)
@@ -51,7 +51,6 @@ export default function Page() {
 
   return (
     <>
-      <Topbar></Topbar>
       <div className="flex items-center justify-center">
         <div className="flex flex-col px-8 py-4 justify-center items-center w-auto bg-background-secondary gap-8">
           <div className="w-full flex flex-row gap-4 items-center">
