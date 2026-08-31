@@ -1,15 +1,26 @@
+import HeroSection from "@/app/components/HeroSection";
+import { Beatmaps } from "@/app/types";
+
+
 interface Props {
   params: Promise<{
-    beatmap_id: string;
+    beatmap_id: number;
   }>
 }
 
 export default async function Page({ params }: Props) {
   const p = await params
-  const beatmap_id = p.beatmap_id
+  const beatmapId = p.beatmap_id
+  const api_url = process.env.NEXT_PUBLIC_API_URL
+
+  const res = await fetch(`${api_url}/api/beatmap/${beatmapId}`)
+  const beatmap: Beatmaps = await res.json()
+
   return (
     <div>
-      hehe {beatmap_id}
+      <HeroSection
+        beatmap={beatmap}
+      />
     </div>
   );
 }
