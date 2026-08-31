@@ -2,7 +2,8 @@ from datetime import datetime, timedelta, timezone
 from typing import Annotated
 import secrets
 
-from fastapi import Depends, HTTPException, Request
+from fastapi import Depends, HTTPException, Request, status, APIRouter
+from fastapi.responses import JSONResponse
 import jwt
 import os
 from dotenv import load_dotenv
@@ -18,10 +19,7 @@ ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 
-class Token(BaseModel):
-    access_token: str
-    refresh_token: str
-    token_type: str
+router = APIRouter()
 
 
 def create_access_token(data: dict):
@@ -62,3 +60,39 @@ def get_current_user(request: Request, session: SessionDep):
         raise HTTPException(status_code=401, detail="User not found")
 
     return user
+
+
+@router.get("/api/me")
+def me(user: Users = Depends(get_current_user)):
+    return {
+        "username": user.username,
+        "osu_id": user.user_id
+    }
+
+
+@router.post("/api/token/refresh")
+def refresh(request: Request, session: SessionDep):
+    refresh_token = request.cookies.get("refresh_token")
+    if not refresh_token:
+        raise HTTPException(status_code=401, detail="No refresh token")
+
+    user = session.exec(select(Users).where(
+        Users.app_refresh_token == refresh_token)).first()
+    if user is None or user.app_token_expires_at < datetime.now():
+        raise HTTPException(status_code=401, detail="Invalid or expired token")
+
+    new_access_token = create_access_token({
+        "osu_user_id": user.user_id,
+        "username": user.username
+    })
+    response = JSONResponse({"message": "refreshed"})
+    response.set_cookie(
+        key="access_token",
+        value=new_access_token,
+        httponly=True,
+        secure=False,
+        samesite="lax",
+        max_age=ACCESS_TOKEN_EXPIRE_MINUTES * 60
+    )
+
+    return response

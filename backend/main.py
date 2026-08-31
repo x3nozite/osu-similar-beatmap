@@ -1,5 +1,4 @@
 from datetime import timedelta, datetime
-from typing import Annotated
 
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.responses import HTMLResponse, RedirectResponse
@@ -8,6 +7,7 @@ from sqlalchemy import func
 from sqlmodel import Session, create_engine, select, or_
 from urllib.parse import urlencode
 from auth import jwt_auth
+from auth.jwt_auth import router as jwt_router
 from beatmaps.models import Beatmaps
 from database import SessionDep
 from users.models import Users
@@ -27,6 +27,9 @@ app.add_middleware(
 
 load_dotenv()
 osu_secret = os.getenv("OSU_CLIENT_SECRET")
+
+
+app.include_router(jwt_router)
 
 
 @app.get("/")
@@ -205,11 +208,3 @@ async def callback(code: str, session: SessionDep):
     )
 
     return response
-
-
-@app.get("/api/me")
-def me(user: Users = Depends(jwt_auth.get_current_user)):
-    return {
-        "username": user.username,
-        "osu_id": user.user_id
-    }
