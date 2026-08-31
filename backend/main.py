@@ -83,6 +83,16 @@ def random_beatmap(session: SessionDep) -> Beatmaps:
     return beatmap
 
 
+@app.get("/api/beatmap/{beatmap_id}")
+def get_beatmap(beatmap_id, session: SessionDep) -> Beatmaps:
+    beatmap = session.exec(
+        select(Beatmaps).where(Beatmaps.beatmap_id == beatmap_id)
+    ).first()
+    if beatmap is None:
+        raise HTTPException(status_code=404, detail="No beatmaps found")
+    return beatmap
+
+
 @app.get("/api/search/beatmapsets/{beatmapset_id}")
 async def read_beatmapset(beatmapset_id):
     return {"id": beatmapset_id}
