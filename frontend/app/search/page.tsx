@@ -76,8 +76,8 @@ export default function Page() {
               </div>
             ))}
             {/* {results.map(r => ( */}
-            {/*   <div key={r.beatmap_id}> */}
             {/*     <BeatmapCard beatmap={r} /> */}
+            {/*   <div key={r.beatmap_id}> */}
             {/*   </div> */}
             {/* ))} */}
           </div>
