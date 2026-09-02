@@ -1,6 +1,6 @@
 "use client"
 import { Beatmaps } from "../types";
-import BeatmapCard from "../components/BeatmapCard";
+import BeatmapsetCard from "../components/BeatmapsetCard";
 import { SlidersHorizontal } from "lucide-react";
 import InputBox from "../components/InputBox";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
@@ -8,7 +8,7 @@ import { useEffect, useState } from "react";
 
 export default function Page() {
   const api_url = process.env.NEXT_PUBLIC_API_URL
-  const [results, setResults] = useState<Beatmaps[]>([])
+  const [results, setResults] = useState<Record<number, Beatmaps[]>>({})
   const [showFilters, setShowFilters] = useState(false)
   const router = useRouter()
   const pathname = usePathname()
@@ -19,9 +19,13 @@ export default function Page() {
   useEffect(() => {
     const timeout = setTimeout(async () => {
       const res = await fetch(`${api_url}/api/search?q=${query}`)
-      const data = await res.json()
-      setResults(data)
-      console.log(results)
+      const data: Beatmaps[] = await res.json()
+      const grouped = data.reduce((acc, bm) => {
+        if (!acc[bm.beatmapset_id]) acc[bm.beatmapset_id] = []
+        acc[bm.beatmapset_id].push(bm)
+        return acc
+      }, {} as Record<number, Beatmaps[]>)
+      setResults(grouped)
     }, 100)
 
     return () => clearTimeout(timeout)
@@ -66,11 +70,16 @@ export default function Page() {
             <div>filters</div>
           )}
           <div className="flex flex-col gap-4">
-            {results.map(r => (
-              <div key={r.beatmap_id}>
-                <BeatmapCard beatmap={r} />
+            {Object.entries(results).map(([bmsId, bm]) => (
+              <div key={bmsId}>
+                <BeatmapsetCard beatmaps={bm} />
               </div>
             ))}
+            {/* {results.map(r => ( */}
+            {/*   <div key={r.beatmap_id}> */}
+            {/*     <BeatmapCard beatmap={r} /> */}
+            {/*   </div> */}
+            {/* ))} */}
           </div>
         </div>
       </div>

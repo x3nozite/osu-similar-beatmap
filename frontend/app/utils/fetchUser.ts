@@ -5,11 +5,11 @@ export type User = {
 
 export async function FetchUser() {
   const api_url = process.env.NEXT_PUBLIC_API_URL
-  let res = await fetch(`${api_url}/api/me`, { credentials: 'include' })
+  let res = await fetch(`${api_url}/api/me`, { credentials: "include" })
 
   if (res.status === 401) {
-    const refresh = await fetch(`${api_url}/api/token/refresh`)
-    if (refresh.ok) res = await fetch(`${api_url}/api/me`, { credentials: 'include' })
+    const refresh = await fetch(`${api_url}/api/token/refresh`, { method: "POST", credentials: "include" })
+    if (refresh.ok) res = await fetch(`${api_url}/api/me`, { credentials: "include" })
   }
 
   if (res.ok) {

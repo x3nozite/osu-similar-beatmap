@@ -20,8 +20,8 @@ batch = []
 BATCH_SIZE = 500
 
 
-shards = [f"compressed/data-{i:06d}.tar" for i in range(56, 60)]
-# 1,56
+shards = [f"compressed/data-{i:06d}.tar" for i in range(66, 73)]
+# 1,66
 ds = load_dataset(
     "project-riz/osu-beatmaps",
     "compressed",
