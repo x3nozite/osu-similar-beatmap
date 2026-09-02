@@ -1,4 +1,5 @@
 import HeroSection from "@/app/components/HeroSection";
+import BeatmapCard from "@/app/components/BeatmapCard";
 import { Beatmaps } from "@/app/types";
 
 
@@ -16,11 +17,18 @@ export default async function Page({ params }: Props) {
   const res = await fetch(`${api_url}/api/beatmap/${beatmapId}`)
   const beatmap: Beatmaps = await res.json()
 
+  const resSimilarBeatmap = await fetch(`${api_url}/api/beatmap/${beatmapId}/similar`)
+  const similarBeatmap: Beatmaps[] = await resSimilarBeatmap.json()
+
   return (
     <div>
       <HeroSection
         beatmap={beatmap}
       />
+
+      {similarBeatmap.map(bm => (
+        <BeatmapCard beatmap={bm} key={bm.beatmap_id} />
+      ))}
     </div>
   );
 }

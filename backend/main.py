@@ -1,6 +1,6 @@
 from datetime import timedelta, datetime
 
-from fastapi import Depends, FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import func
@@ -10,12 +10,15 @@ from auth import jwt_auth
 from auth.jwt_auth import router as jwt_router
 from beatmaps.models import Beatmaps
 from database import SessionDep
+from lifespan import lifespan
 from users.models import Users
 import os
 from dotenv import load_dotenv
 import requests
+import numpy as np
+from sklearn.metrics.pairwise import cosine_similarity
 
-app = FastAPI()
+app = FastAPI(lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
@@ -71,8 +74,12 @@ def search_beatmapset(q: str, session: SessionDep) -> list[Beatmaps]:
             )
         )
 
+    beatmapset_ids = session.exec(
+        select(Beatmaps.beatmapset_id).where(*conditions).distinct().limit(50)
+    ).all()
+
     beatmaps = session.exec(
-        select(Beatmaps).where(*conditions).limit(20)).all()
+        select(Beatmaps).where(Beatmaps.beatmapset_id.in_(beatmapset_ids)).order_by(Beatmaps.star_rating.asc())).all()
     return list(beatmaps)
 
 
@@ -208,3 +215,50 @@ async def callback(code: str, session: SessionDep):
     )
 
     return response
+
+
+# TODO: filter same beatmapset_id from being picked as a similar beatmap
+@app.get("/api/beatmap/{beatmap_id}/similar")
+def get_similar(beatmap_id: int, request: Request, session: SessionDep, limit: int = 20):
+    numeric_m = request.app.state.numeric_matrix
+    beatmap_id_idx = request.app.state.beatmap_id_index
+    tag_m = request.app.state.tag_matrix
+    beatmapset_id_idx = request.app.state.beatmapset_id_index
+    beatmap_to_beatmapset = request.app.state.beatmap_to_beatmapset
+
+    if beatmap_id not in beatmap_id_idx:
+        raise HTTPException(status_code=404, detail="Beatmap not found")
+
+    target_row = beatmap_id_idx[beatmap_id]
+    target_vector = numeric_m[target_row]
+
+    numeric_dist = np.linalg.norm(numeric_m - target_vector, axis=1)
+    numeric_similarity = 1 / (1 + numeric_dist)
+
+    target_beatmap = session.get(Beatmaps, beatmap_id)
+    if not target_beatmap:
+        raise HTTPException(status_code=404, detail="Beatmap not found")
+
+    tag_similarity = np.zeros(len(numeric_similarity))
+
+    if target_beatmap.beatmapset_id in beatmapset_id_idx:
+        row_idx = beatmapset_id_idx[target_beatmap.beatmapset_id]
+        tag_sims = cosine_similarity(tag_m[row_idx], tag_m).flatten()
+
+        for bm_id_, idx in beatmap_id_idx.items():
+            bms_id = beatmap_to_beatmapset[bm_id_]
+            if bms_id in beatmapset_id_idx:
+                tag_similarity[idx] = tag_sims[beatmapset_id_idx[bms_id]]
+
+    similarity_score = 0.6 * numeric_similarity + 0.4 * tag_similarity
+
+    similarity_score[target_row] = -1
+    top_scorers = np.argsort(similarity_score)[::-1][:limit]
+
+    idx_to_beatmap_id = {idx: bm_id for bm_id, idx in beatmap_id_idx.items()}
+    top_ids = [idx_to_beatmap_id[i] for i in top_scorers]
+
+    similar_beatmaps = session.exec(
+        select(Beatmaps).where(Beatmaps.beatmap_id.in_(top_ids))
+    ).all()
+    return similar_beatmaps

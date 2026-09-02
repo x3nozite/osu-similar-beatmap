@@ -11,3 +11,10 @@ class Beatmaps(SQLModel, table=True):
     version: str = Field(default=None)
     artist: str
     mapper: str
+    bpm_norm: float
+    diff_aim_norm: float
+    diff_speed_norm: float
+    ar_norm: float
+    cs_norm: float
+    density_norm: float
+    tap_ratio_norm: float
