@@ -10,7 +10,6 @@ dependencies = [
     "huggingface-hub>=1.28.0",
     "jupyter-contrib-nbextensions>=0.7.0",
     "numpy>=2.5.2",
-    "psycopg2>=2.9.12",
     "psycopg2-binary>=2.9.12",
     "pyjwt>=2.13.0",
     "python-dotenv>=1.2.3",
