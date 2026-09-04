@@ -1,11 +1,14 @@
+import os
 from typing import Annotated
 
+from dotenv import load_dotenv
 from fastapi import Depends
 from sqlmodel import Session, create_engine, select, or_
 
-postgres_name = "beatmap_similarity"
-postgres_url = f"postgresql://postgres:@localhost:5432/{postgres_name}"
-engine = create_engine(postgres_url)
+load_dotenv()
+
+postgres_url = os.getenv("DATABASE_URL")
+engine = create_engine(str(postgres_url))
 
 
 def get_session():

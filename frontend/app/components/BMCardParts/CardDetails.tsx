@@ -1,4 +1,5 @@
 import { Beatmaps } from "@/app/types";
+import { getColor } from "@/app/utils/colors";
 
 interface Props {
   beatmap: Beatmaps
@@ -16,7 +17,10 @@ export default function CardDetails({ beatmap }: Props) {
       </div>
       <div className="text-sm">
         <p>
-          Mapped by <span className="font-bold">{beatmap.mapper}</span> | Star Rating: <span className="font-bold">{beatmap.star_rating.toFixed(2)}*</span>
+          Mapped by <span className="font-bold">{beatmap.mapper}</span> | Star Rating:
+          <span style={{ backgroundColor: getColor(beatmap.star_rating).color, color: getColor(beatmap.star_rating).foreground }} className="p-1 px-3 rounded-xl ml-1 font-bold">{beatmap.star_rating.toFixed(2)}</span>
+
+          {/* <span className="font-bold">{beatmap.star_rating.toFixed(2)}*</span> */}
         </p>
       </div>
     </div>

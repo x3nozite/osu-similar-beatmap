@@ -21,14 +21,16 @@ export default async function Page({ params }: Props) {
   const similarBeatmap: Beatmaps[] = await resSimilarBeatmap.json()
 
   return (
-    <div>
+    <div className="flex flex-col gap-12">
       <HeroSection
         beatmap={beatmap}
       />
 
-      {similarBeatmap.map(bm => (
-        <BeatmapCard beatmap={bm} key={bm.beatmap_id} />
-      ))}
+      <div className="flex flex-col items-center gap-8">
+        {similarBeatmap.map(bm => (
+          <BeatmapCard beatmap={bm} key={bm.beatmap_id} />
+        ))}
+      </div>
     </div>
   );
 }

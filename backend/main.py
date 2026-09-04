@@ -19,16 +19,17 @@ import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
 
 app = FastAPI(lifespan=lifespan)
+load_dotenv()
 
+frontend_url = os.getenv("FRONTEND_URL")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=[f"{frontend_url}"],
     allow_methods=["*"],
     allow_headers=["*"],
     allow_credentials=True,
 )
 
-load_dotenv()
 osu_secret = os.getenv("OSU_CLIENT_SECRET")
 
 
@@ -57,8 +58,12 @@ async def test():
 @app.get("/api/search")
 def search_beatmapset(q: str, session: SessionDep) -> list[Beatmaps]:
     if q == '':
+        beatmapset_ids = session.exec(
+            select(Beatmaps.beatmapset_id).distinct().limit(50)
+        ).all()
         beatmaps = session.exec(
-            select(Beatmaps).order_by(Beatmaps.beatmapset_id.desc()).limit(50)
+            select(Beatmaps).where(Beatmaps.beatmapset_id.in_(beatmapset_ids)).order_by(
+                Beatmaps.star_rating.asc())
         )
         return list(beatmaps)
 
@@ -113,7 +118,7 @@ def osu_login():
     base_url = "https://osu.ppy.sh/oauth/authorize"
     params = {
         'client_id': '66324',
-        'redirect_uri': 'http://localhost:8000/api/login/callback',
+        'redirect_uri': os.getenv("OSU_REDIRECT_URI"),
         'response_type': 'code',
         'scope': 'public identify',
         "state": "randomval",
@@ -139,7 +144,7 @@ async def callback(code: str, session: SessionDep):
         'client_secret': osu_secret,
         'code': code,
         'grant_type': 'authorization_code',
-        'redirect_uri': 'http://localhost:8000/api/login/callback'
+        'redirect_uri': os.getenv("OSU_REDIRECT_URI")
     }
 
     response = requests.post(token_url, headers=headers, data=body)
@@ -194,7 +199,7 @@ async def callback(code: str, session: SessionDep):
         session.commit()
 
     # TODO: change with actual deployment url later
-    response = RedirectResponse(url="http://localhost:3000/")
+    response = RedirectResponse(url=str(frontend_url))
 
     response.set_cookie(
         key="access_token",
@@ -250,7 +255,7 @@ def get_similar(beatmap_id: int, request: Request, session: SessionDep, limit: i
             if bms_id in beatmapset_id_idx:
                 tag_similarity[idx] = tag_sims[beatmapset_id_idx[bms_id]]
 
-    similarity_score = 0.6 * numeric_similarity + 0.4 * tag_similarity
+    similarity_score = 0.3 * numeric_similarity + 0.7 * tag_similarity
 
     similarity_score[target_row] = -1
     top_scorers = np.argsort(similarity_score)[::-1][:limit]

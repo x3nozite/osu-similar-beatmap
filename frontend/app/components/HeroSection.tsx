@@ -17,7 +17,7 @@ export default function HeroSection({ beatmap }: Props) {
         className="object-cover brightness-50" />
       <div className="absolute inset-0 flex flex-col justify-center px-10">
         <h1 className="font-bold text-4xl">{beatmap.title}</h1>
-        <p>[{beatmap.version}] {beatmap.star_rating}*</p>
+        <p className="text-lg">[{beatmap.version}] {beatmap.star_rating.toFixed(2)}*</p>
       </div>
     </div>
   );

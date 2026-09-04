@@ -11,10 +11,10 @@ hf_token = os.getenv("HF_TOKEN")
 login(token=hf_token)
 
 conn = psycopg2.connect(
-    host="localhost",
-    dbname="beatmap_similarity",
-    user="postgres",
-    password=""
+    host=os.getenv("DB_HOST"),
+    dbname=os.getenv("DB_NAME"),
+    user=os.getenv("DB_USER"),
+    password=os.getenv("DB_PASSWORD")
 )
 batch = []
 BATCH_SIZE = 500
