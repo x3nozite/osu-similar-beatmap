@@ -205,8 +205,8 @@ async def callback(code: str, session: SessionDep):
         key="access_token",
         value=app_access_token,
         httponly=True,
-        secure=False,  # TODO: change to True for production/HTTPS
-        samesite="lax",
+        secure=True,  # TODO: change to True for production/HTTPS
+        samesite="none",
         max_age=jwt_auth.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
     )
 
@@ -214,8 +214,8 @@ async def callback(code: str, session: SessionDep):
         key="refresh_token",
         value=app_refresh_token,
         httponly=True,
-        secure=False,
-        samesite="lax",
+        secure=True,
+        samesite="none",
         max_age=365 * 24 * 60 * 60
     )
 

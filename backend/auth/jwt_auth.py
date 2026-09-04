@@ -90,8 +90,8 @@ def refresh(request: Request, session: SessionDep):
         key="access_token",
         value=new_access_token,
         httponly=True,
-        secure=False,
-        samesite="lax",
+        secure=True,
+        samesite="none",
         max_age=ACCESS_TOKEN_EXPIRE_MINUTES * 60
     )
 
