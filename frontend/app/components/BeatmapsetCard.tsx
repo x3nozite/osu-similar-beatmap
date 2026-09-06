@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Beatmaps } from "../types";
 import Cover from "./BMSetCardParts/Cover";
 import Image from "next/image";
-import { getColor, getForegroundColor } from "../utils/colors";
+import { getColor } from "../utils/colors";
 
 interface Props {
   beatmaps: Beatmaps[]

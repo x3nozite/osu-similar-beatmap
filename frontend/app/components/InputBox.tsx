@@ -1,6 +1,6 @@
 interface Props {
   query: string;
-  handleChange: (e) => void;
+  handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onEnter?: () => void;
 }
 
