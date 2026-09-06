@@ -4,9 +4,18 @@ import BeatmapsetCard from "../components/BeatmapsetCard";
 import { SlidersHorizontal } from "lucide-react";
 import InputBox from "../components/InputBox";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
+import { Suspense } from "react";
 import { useEffect, useState } from "react";
 
-export default function Page() {
+export default function SearchPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <Page />
+    </Suspense>
+  )
+}
+
+function Page() {
   const api_url = process.env.NEXT_PUBLIC_API_URL
   const [results, setResults] = useState<Record<number, Beatmaps[]>>({})
   const [showFilters, setShowFilters] = useState(false)
@@ -19,7 +28,10 @@ export default function Page() {
   useEffect(() => {
     const timeout = setTimeout(async () => {
       const res = await fetch(`${api_url}/api/search?q=${query}`)
+      if (!res.ok) return null
+
       const data: Beatmaps[] = await res.json()
+      if (!data) return null
       const grouped = data.reduce((acc, bm) => {
         if (!acc[bm.beatmapset_id]) acc[bm.beatmapset_id] = []
         acc[bm.beatmapset_id].push(bm)
