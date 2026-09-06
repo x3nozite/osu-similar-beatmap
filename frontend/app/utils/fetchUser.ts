@@ -16,7 +16,6 @@ export async function FetchUser() {
     const data: User = await res.json()
     return data
   } else {
-    console.error(res)
     return null
   }
 

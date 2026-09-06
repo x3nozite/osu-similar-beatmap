@@ -17,7 +17,6 @@ export default function Page() {
     async function getRandomBeatmap() {
       const res = await fetch(`${api_url}/api/beatmap/random`)
       const data: Beatmaps = await res.json()
-      console.log(data)
 
       setBackground(`https://assets.ppy.sh/beatmaps/${data.beatmapset_id}/covers/fullsize.jpg`)
     }
@@ -37,22 +36,20 @@ export default function Page() {
     <div>
       <div className="relative w-full h-240">
         {background && (
-          <>
-            <Image src={background} alt="" fill className="object-cover" />
-            <div className="bg-gradient-to-r from-[var(--color-background-primary)] from-30% to-transparent w-full h-full absolute inset-0"></div>
-            <div className="absolute inset-0 flex flex-col justify-center px-12 gap-8">
-              <h1 className="text-4xl font-bold text-white">Welcome to osu!similarity</h1>
-              <div className="flex flex-row gap-8 w-1/2 md:w-150 lg:w-1/2">
-                <InputBox
-                  query={query}
-                  handleChange={handleChange}
-                  onEnter={search}
-                />
-                <ButtonCustom text="Search" onClick={search} />
-              </div>
-            </div>
-          </>
+          <Image src={background} alt="" fill className="object-cover" />
         )}
+        <div className="bg-gradient-to-r from-[var(--color-background-primary)] from-30% to-transparent w-full h-full absolute inset-0"></div>
+        <div className="absolute inset-0 flex flex-col justify-center px-12 gap-8">
+          <h1 className="text-4xl font-bold text-white">Welcome to osu!similarity</h1>
+          <div className="flex flex-row gap-8 w-1/2 md:w-150 lg:w-1/2">
+            <InputBox
+              query={query}
+              handleChange={handleChange}
+              onEnter={search}
+            />
+            <ButtonCustom text="Search" onClick={search} />
+          </div>
+        </div>
       </div>
     </div>
   );
