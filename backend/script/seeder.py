@@ -7,6 +7,7 @@ import psycopg2
 from psycopg2.extras import execute_values
 
 load_dotenv()
+load_dotenv(".env.local", override=True)
 hf_token = os.getenv("HF_TOKEN")
 login(token=hf_token)
 

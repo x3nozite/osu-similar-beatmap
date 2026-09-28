@@ -1,17 +1,17 @@
 from datetime import timedelta, datetime
 
-from fastapi import Depends, FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import func
-from sqlmodel import Session, create_engine, select, or_
+from sqlmodel import select, or_
 from urllib.parse import urlencode
-from auth import jwt_auth
-from auth.jwt_auth import router as jwt_router
-from beatmaps.models import Beatmaps
-from database import SessionDep
-from lifespan import lifespan
-from users.models import Users
+from app.auth import jwt_auth
+from app.auth.jwt_auth import router as jwt_router
+from app.beatmaps.models import Beatmaps
+from app.database import SessionDep
+from app.lifespan import lifespan
+from app.users.models import Users
 import os
 from dotenv import load_dotenv
 import requests
@@ -20,6 +20,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 
 app = FastAPI(lifespan=lifespan)
 load_dotenv()
+load_dotenv(".env.local", override=True)
 
 frontend_url = os.getenv("FRONTEND_URL")
 app.add_middleware(

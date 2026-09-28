@@ -1,9 +1,9 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
-from beatmaps.models import Beatmaps
+from app.beatmaps.models import Beatmaps
 from sklearn.feature_extraction.text import CountVectorizer
 import numpy as np
-from database import engine
+from app.database import engine
 from sqlmodel import Session, select
 
 

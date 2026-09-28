@@ -10,10 +10,11 @@ from dotenv import load_dotenv
 from pydantic import BaseModel
 from sqlmodel import select
 
-from database import SessionDep
-from users.models import Users
+from app.database import SessionDep
+from app.users.models import Users
 
 load_dotenv()
+load_dotenv(".env.local", override=True)
 JWT_SECRET = os.getenv("JWT_SECRET")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30

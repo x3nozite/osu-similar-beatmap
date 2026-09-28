@@ -4,7 +4,7 @@ export type User = {
 }
 
 export async function FetchUser() {
-  const api_url = process.env.NEXT_PUBLIC_API_URL
+  const api_url = process.env.INTERNAL_API_URL
   let res = await fetch(`${api_url}/api/me`, { credentials: "include" })
 
   if (res.status === 401) {

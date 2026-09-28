@@ -7,7 +7,8 @@ const nextConfig: NextConfig = {
   },
   images: {
     remotePatterns: [{ hostname: "assets.ppy.sh" }]
-  }
+  },
+  output: "standalone",
 };
 
 export default nextConfig;

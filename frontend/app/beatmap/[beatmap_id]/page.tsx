@@ -12,7 +12,7 @@ interface Props {
 export default async function Page({ params }: Props) {
   const p = await params
   const beatmapId = p.beatmap_id
-  const api_url = process.env.NEXT_PUBLIC_API_URL
+  const api_url = process.env.INTERNAL_API_URL
 
   const res = await fetch(`${api_url}/api/beatmap/${beatmapId}`)
   const beatmap: Beatmaps = await res.json()

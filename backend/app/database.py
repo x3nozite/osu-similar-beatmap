@@ -6,6 +6,7 @@ from fastapi import Depends
 from sqlmodel import Session, create_engine, select, or_
 
 load_dotenv()
+load_dotenv(".env.local", override=True)
 
 postgres_url = os.getenv("DATABASE_URL")
 engine = create_engine(str(postgres_url))
