@@ -18,6 +18,9 @@ A handful of joke/troll beatmaps exist with absurd BPM or star rating values, wh
 - **Frontend**: Next.js (TypeScript), Tailwind CSS
 - **Backend**: FastAPI, SQLModel
 - **Database**: PostgreSQL (Neon)
+- **Containerization**: Docker, Docker Compose
+- **Infrastructure as Code**: Terraform
+- **Image Building**: Packer (custom Ubuntu image, Docker/Compose pre-installed)
 
 ## Data
 
