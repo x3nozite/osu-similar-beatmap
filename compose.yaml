@@ -1,19 +1,25 @@
 services:
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.local.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - frontend
   frontend:
     build:
       context: ./frontend
       args:
-       NEXT_PUBLIC_API_URL: http://localhost:8000
+       NEXT_PUBLIC_API_URL: /backend
+    image: xenozite/osu-similarity-frontend:latest
     environment:
       INTERNAL_API_URL: http://backend:8000
-    ports:
-      - "3000:3000"
     depends_on:
       - backend
   backend:
     build: ./backend/
-    ports:
-      - "8000:8000"
+    image: xenozite/osu-similarity-backend:latest
     env_file: ./backend/.env.local
     environment:
       DATABASE_URL: ${DATABASE_URL}
